@@ -8,8 +8,8 @@
     <ProjectGuid>{E20A78C6-A62E-475C-BCC3-CE897D77CB38}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>YahooScraper</RootNamespace>
-    <AssemblyName>YahooScraper</AssemblyName>
+    <RootNamespace>YahooGroupMemberScraper</RootNamespace>
+    <AssemblyName>YahooGroupMemberScraper</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -32,6 +32,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>YahooGroupMemberScraper.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommandLine">

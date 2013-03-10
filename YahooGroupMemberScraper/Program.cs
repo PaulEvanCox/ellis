@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Mime;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -15,7 +12,6 @@ namespace YahooGroupMemberScraper
 {
     class Program
     {
-        // Define a class to receive parsed values
         class Options
         {
             [Option('l', "login", Required = true,
@@ -50,6 +46,10 @@ namespace YahooGroupMemberScraper
         }
 
 
+        
+        /// <summary>
+        /// Gets a list of all members subscribed to a Yahoo group.
+        /// </summary>
         static void Main(string[] args)
         {
 
@@ -89,7 +89,7 @@ namespace YahooGroupMemberScraper
 
             while (true)
             {
-                
+                // Pull down a member list page
                 string url = String.Format("http://health.groups.yahoo.com/group/{0}/members?start={1}&group=sub", options.GroupName, startPos);
                 HttpWebRequest req = (HttpWebRequest) WebRequest.Create(url);
                 req.CookieContainer = _yahooContainer;
@@ -102,13 +102,15 @@ namespace YahooGroupMemberScraper
                     responseString = reader.ReadToEnd();
                 }
 
-                //looking for something like...
-                /*
+                
+                /*  Find the profile names in the HTML.  We're looking for something like this:
+                  
                     <td class="yid selected ygrp-nowrap">
                     <a href="http://profiles.yahoo.com/Faith_50">Faith_50</a> </td>
                     <td class="email ygrp-nowrap">
                     <a href="/group/VasectomyPain/post?postID=p266YGV28ctpvZQ-NTeOMXEZmWEx-o7PlEK11MR2eTnJi--HM4quWR0pAB9xZ2T20zcjTSumoxo">faith_50@...</a>
                     </td>
+                 
                  */
 
                 const string pattern = @"<td class=""yid selected ygrp-nowrap"">\n<a href=""http://profiles.yahoo.com/(.*?)"".*>.*?</a> </td>\n<td class=""email ygrp-nowrap"">\n<a href=""/group/VasectomyPain/post\?postID=.*?"">(.*?)@";
@@ -135,17 +137,12 @@ namespace YahooGroupMemberScraper
                     m = m.NextMatch();
                 }
 
-                // find the nextStartPos...
-
+                // Find the URL for the 'Next >' link to get the next startPos...
                 string nextPagePattern = @"<a href=""/group/VasectomyPain/members\?start=([0-9]*)&amp;group=sub"">Next&nbsp;&gt;</a>";
-
                 Match matchNextPage = Regex.Match(responseString, nextPagePattern);
-
-                if (matchNextPage.Length == 0)
+                if (!matchNextPage.Success)
                 {
-                    
                     // we've reached the end.  Let's write out our file.
-
                     WriteListToFile(profileList, options.OutputFile);
 
                     Console.WriteLine("Done. Press any key to continue");
@@ -153,7 +150,10 @@ namespace YahooGroupMemberScraper
                     break;
                 }
 
+                // bump up the start pos
                 startPos = Int32.Parse(matchNextPage.Groups[1].Value);
+
+                // Wait for some time so we don't look like a DOS attack
                 Thread.Sleep(options.Interval);
 
             }
